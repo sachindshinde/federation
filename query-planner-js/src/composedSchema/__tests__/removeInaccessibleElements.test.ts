@@ -277,6 +277,85 @@ describe('removeInaccessibleElements', () => {
     expect(schema.getType('Foo4')).toBeUndefined();
   });
 
+  it(`removes interface implementations whose interface is inaccessible`, () => {
+    let schema = buildSchema(`#graphql
+      directive @core(feature: String!, as: String, for: core__Purpose) repeatable on SCHEMA
+
+      directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+      schema
+        @core(feature: "https://specs.apollo.dev/core/v0.2")
+        @core(feature: "https://specs.apollo.dev/inaccessible/v0.1")
+      {
+        query: Query
+      }
+
+      enum core__Purpose {
+        EXECUTION
+        SECURITY
+      }
+
+      type Query {
+        impl: Impl @inaccessible
+      }
+
+      interface Foo @inaccessible {
+        id: String
+      }
+
+      type Impl implements Foo {
+        id: String
+      }
+    `);
+
+    schema = removeInaccessibleElements(schema);
+
+    expect(schema.getType('Foo')).toBeUndefined();
+    expect(schema.getType('Impl')).toBeUndefined();
+  });
+
+  it(`removes fields which return an implementation whose interface is inaccessible`, () => {
+    let schema = buildSchema(`#graphql
+      directive @core(feature: String!, as: String, for: core__Purpose) repeatable on SCHEMA
+
+      directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+      schema
+        @core(feature: "https://specs.apollo.dev/core/v0.2")
+        @core(feature: "https://specs.apollo.dev/inaccessible/v0.1")
+      {
+        query: Query
+      }
+
+      enum core__Purpose {
+        EXECUTION
+        SECURITY
+      }
+
+      type Query {
+        impl: Impl @inaccessible
+        other: String
+      }
+
+      interface Foo @inaccessible {
+        id: String
+      }
+
+      type Impl implements Foo {
+        id: String
+      }
+    `);
+
+    schema = removeInaccessibleElements(schema);
+
+    expect(schema.getType('Foo')).toBeUndefined();
+    expect(schema.getType('Impl')).toBeUndefined();
+    expect(
+      (schema.getType('Query') as GraphQLObjectType).getFields()['impl'],
+    ).toBeUndefined();
+
+  });
+
   it(`throws when a field returning an @inaccessible type isn't marked @inaccessible itself`, () => {
     let schema = buildSchema(`
       directive @core(feature: String!, as: String, for: core__Purpose) repeatable on SCHEMA
