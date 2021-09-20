@@ -24,6 +24,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "version": "tmp=$(mktemp); dir=(${PWD##*/}); name=$(jq '.name' package.json); version=$(jq '.version' package.json); jq --arg version $version '.packages[\"$dir\"].version = ($version|fromjson)' ../package-lock.json >> \"$tmp\" && mv \"$tmp\" ../package-lock.json"
+  },
   "dependencies": {
     "@apollo/core-schema": "^0.1.0",
     "@apollo/federation": "file:../federation-js",

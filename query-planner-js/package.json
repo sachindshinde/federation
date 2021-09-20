@@ -24,6 +24,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "version": "tmp=$(mktemp); dir=(${PWD##*/}); name=$(jq '.name' package.json); version=$(jq '.version' package.json); jq --arg version $version '.packages[\"$dir\"].version = ($version|fromjson)' ../package-lock.json >> \"$tmp\" && mv \"$tmp\" ../package-lock.json"
+  },
   "dependencies": {
     "apollo-graphql": "^0.9.3",
     "chalk": "^4.1.0",

@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "rollup": "rollup -c ./rollup.config.js"
+    "rollup": "rollup -c ./rollup.config.js",
+    "version": "tmp=$(mktemp); dir=(${PWD##*/}); name=$(jq '.name' package.json); version=$(jq '.version' package.json); jq --arg version $version '.packages[\"$dir\"].version = ($version|fromjson)' ../package-lock.json >> \"$tmp\" && mv \"$tmp\" ../package-lock.json"
   },
   "repository": {
     "type": "git",
