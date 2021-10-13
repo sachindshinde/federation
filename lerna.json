@@ -5,7 +5,7 @@
     "gateway-js",
     "harmonizer",
     "query-planner-js",
-    "subgraph-js"
+    "router-bridge"
   ],
   "version": "independent",
   "command": {
